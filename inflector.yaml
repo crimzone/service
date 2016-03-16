@@ -1,5 +1,5 @@
 controllerPackage: se.crimzone.service.controllers
 modelPackage: se.crimzone.service.models
-swaggerUrl: https://raw.githubusercontent.com/crimzone/api/master/swagger.yaml
+swaggerUrl: ./target/swagger.yaml
 entityProcessors:
   - json
