@@ -1,5 +1,6 @@
 package se.crimzone.service;
 
+import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
@@ -38,7 +39,7 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 
 	@Override
 	public String getName() {
-		return "Inflector Dropwizard Sample";
+		return "Crimzone service";
 	}
 
 	@Override
@@ -56,15 +57,20 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 		final FilterRegistration.Dynamic cors = env.servlets().addFilter("crossOriginRequsts", CrossOriginFilter.class);
 		cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
-		configureSwagger(config, env);
+		registerInflectorResources(env);
+		configureSwaggerDataTypes(env);
+		registerHealthchecks(env.healthChecks());
 	}
 
-	private void configureSwagger(CrimzoneConfiguration config, Environment env) throws Exception {
+	private void registerInflectorResources(Environment env) throws Exception {
 		Configuration swaggerConfig = Configuration.read(INFLECTOR_FILE_PATH);
 		swaggerConfig.setControllerFactory(new GuiceControllerFactory(guiceBundle.getInjector()));
 		SwaggerInflector inflector = new SwaggerInflector(swaggerConfig);
 		env.jersey().getResourceConfig().registerResources(inflector.getResources());
+		LOG.debug("Registered inflector resources: {}", env.jersey().getResourceConfig().getResources());
+	}
 
+	private void configureSwaggerDataTypes(Environment env) throws Exception {
 		// add serializers for swagger
 		env.jersey().register(SwaggerSerializers.class);
 
@@ -72,18 +78,21 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 		env.jersey().register(XMLExampleProvider.class);
 
 		// mappers
-		SimpleModule simpleModule = new SimpleModule();
-		simpleModule.addSerializer(new JsonNodeExampleSerializer());
-		Json.mapper().registerModule(simpleModule);
-		Yaml.mapper().registerModule(simpleModule);
+		SimpleModule jacksonModule = new SimpleModule();
+		jacksonModule.addSerializer(new JsonNodeExampleSerializer());
+		Json.mapper().registerModule(jacksonModule);
+		Yaml.mapper().registerModule(jacksonModule);
+	}
 
-		env.healthChecks().register("mongoDbExists", guiceBundle.getInjector().getInstance(MongoDbExistsHealthCheck.class));
+	private void registerHealthchecks(HealthCheckRegistry healthChecks) {
+		healthChecks.register("mongoDbExists", guiceBundle.getInjector().getInstance(MongoDbExistsHealthCheck.class));
+		LOG.debug("Health checks: {}", healthChecks.getNames());
 	}
 
 	private static class GuiceControllerFactory implements ControllerFactory {
 		private final Injector injector;
 
-		public GuiceControllerFactory(Injector injector) {
+		GuiceControllerFactory(Injector injector) {
 			this.injector = injector;
 		}
 

@@ -8,7 +8,7 @@ import io.dropwizard.setup.Environment;
 
 import java.net.UnknownHostException;
 
-public class CrimzoneModule extends AbstractModule {
+class CrimzoneModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		// bind your guice stuff here

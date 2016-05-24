@@ -9,7 +9,7 @@ public class MongoDbExistsHealthCheck extends HealthCheck {
 	private final DB mongo;
 
 	@Inject
-	public MongoDbExistsHealthCheck(DB mongo) {
+	MongoDbExistsHealthCheck(DB mongo) {
 		this.mongo = mongo;
 	}
 
