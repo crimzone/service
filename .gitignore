@@ -33,7 +33,7 @@ buildNumber.properties
 Thumbs.db
 ehthumbs.db
 
-# Folder config file
+# Folder inflectorFile file
 Desktop.ini
 
 # Recycle Bin used on file shares
@@ -171,3 +171,7 @@ fabric.properties
 # Project files
 *.iml
 .idea/
+
+# Dropwizard configuration files
+*.yaml
+!inflector.yaml

@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
 
 public class CrimesController {
 
-	public ResponseContext find(RequestContext request, String query, DateTime minTime, DateTime maxTime) {
+	public ResponseContext find(RequestContext request, Integer zoom, String text, String query, DateTime minTime, DateTime maxTime) {
 		throw new UnsupportedOperationException("Not yet implemented"); // TODO: Implement
 	}
 
