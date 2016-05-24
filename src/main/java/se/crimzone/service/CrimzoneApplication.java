@@ -28,6 +28,8 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CrimzoneApplication.class);
 
+	private static final String INFLECTOR_FILE_PATH = "inflector.yaml";
+
 	private GuiceBundle<CrimzoneConfiguration> guiceBundle;
 
 	public static void main(String[] args) throws Exception {
@@ -58,7 +60,7 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 	}
 
 	private void configureSwagger(CrimzoneConfiguration config, Environment env) throws Exception {
-		Configuration swaggerConfig = Configuration.read(config.getInflectorFile());
+		Configuration swaggerConfig = Configuration.read(INFLECTOR_FILE_PATH);
 		swaggerConfig.setControllerFactory(new GuiceControllerFactory(guiceBundle.getInjector()));
 		SwaggerInflector inflector = new SwaggerInflector(swaggerConfig);
 		env.jersey().getResourceConfig().registerResources(inflector.getResources());
