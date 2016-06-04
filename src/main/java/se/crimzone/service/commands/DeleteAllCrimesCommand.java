@@ -9,8 +9,8 @@ import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import org.slf4j.Logger;
-import se.crimzone.service.CrimzoneApplication;
 import se.crimzone.service.CrimzoneConfiguration;
+import se.crimzone.service.dao.CrimesDao;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -29,7 +29,7 @@ public class DeleteAllCrimesCommand extends ConfiguredCommand<CrimzoneConfigurat
 		log.info("Connecting to mongo");
 		ManagedMongoClient mongo = config.getMongo().build();
 		DB db = mongo.getDB(config.getMongo().getDbName());
-		DBCollection collection = db.getCollection(CrimzoneApplication.CRIMES_COLLECTION_NAME);
+		DBCollection collection = db.getCollection(CrimesDao.CRIMES_COLLECTION_NAME);
 		log.info("Dropping collection '{}'", collection);
 		collection.drop();
 		log.info("Successfully dropped collection");

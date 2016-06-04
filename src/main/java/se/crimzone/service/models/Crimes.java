@@ -3,6 +3,7 @@ package se.crimzone.service.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 
@@ -39,7 +40,7 @@ public class Crimes {
 			return false;
 		}
 		Crimes crimes = (Crimes) o;
-		return Objects.equals(data, crimes.data);
+		return Arrays.equals(data, crimes.data);
 	}
 
 	@Override
@@ -52,7 +53,6 @@ public class Crimes {
 		StringBuilder sb = new StringBuilder();
 		sb.append("class Crimes {\n");
 
-		sb.append("    data: ").append(toIndentedString(data)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

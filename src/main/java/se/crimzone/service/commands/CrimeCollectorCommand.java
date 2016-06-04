@@ -13,8 +13,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.mongojack.JacksonDBCollection;
 import org.slf4j.Logger;
-import se.crimzone.service.CrimzoneApplication;
 import se.crimzone.service.CrimzoneConfiguration;
+import se.crimzone.service.dao.CrimesDao;
 import se.crimzone.service.models.Crime;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 	private static final String COMMAND_NAME = "collect";
 	private static final String COMMAND_DESCRIPTION = "Collects crimes from Brottsplatskartan and saves them to the database";
 
-	private JacksonDBCollection<Crime, String> collection;
+	private CrimesDao dao;
 
 	public CrimeCollectorCommand() {
 		super(COMMAND_NAME, COMMAND_DESCRIPTION);
@@ -51,8 +51,9 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 	protected void run(Bootstrap<CrimzoneConfiguration> bootstrap, Namespace arguments, CrimzoneConfiguration config) throws Exception {
 		ManagedMongoClient mongo = config.getMongo().build();
 		DB db = mongo.getDB(config.getMongo().getDbName());
-		DBCollection mongoCollection = db.getCollection(CrimzoneApplication.CRIMES_COLLECTION_NAME);
-		collection = JacksonDBCollection.wrap(mongoCollection, Crime.class, String.class);
+		DBCollection mongoCollection = db.getCollection(CrimesDao.CRIMES_COLLECTION_NAME);
+		JacksonDBCollection<Crime, Integer> collection = JacksonDBCollection.wrap(mongoCollection, Crime.class, Integer.class);
+		dao = new CrimesDao(collection);
 
 		Integer start = arguments.getInt("start");
 		log.debug("start: {}", start);
@@ -113,7 +114,7 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 
 	private int collect(int startPage, int endPage, int parallelism) {
 		OrderedJobProcessor<List<Crime>> saver = new OrderedJobProcessor<>(startPage, endPage,
-				(collection::insert)); // TODO Implement saving
+				(dao::insert));
 		log.debug("Creating {} worker threads", parallelism);
 		List<CrimeCollectorWorker> workers = IntStream.range(0, parallelism)
 				.mapToObj(i -> new CrimeCollectorWorker(String.valueOf(i), saver))
@@ -256,7 +257,7 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 				return Optional.empty();
 			}
 			Optional<Integer> job = Optional.of(upcomingJob);
-			log.info("Handling job {}", job);
+			log.info("Handing out job {}", job);
 			upcomingJob = nextOperation.apply(this.upcomingJob);
 			return job;
 		}
