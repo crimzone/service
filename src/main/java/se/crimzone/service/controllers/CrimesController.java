@@ -9,7 +9,7 @@ public class CrimesController {
 		throw new UnsupportedOperationException("Not yet implemented"); // TODO: Implement
 	}
 
-	public ResponseContext findById(RequestContext request, Integer id) {
+	public ResponseContext findById(RequestContext request, int id) {
 		throw new UnsupportedOperationException("Not yet implemented"); // TODO: Implement
 	}
 }

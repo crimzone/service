@@ -1,21 +1,21 @@
 package se.crimzone.service.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.google.inject.Inject;
 import com.mongodb.DB;
 
 public class MongoDbExistsHealthCheck extends HealthCheck {
 
-	private final DB mongo;
+	public static final String NAME = "mongoDbExists";
 
-	@Inject
-	MongoDbExistsHealthCheck(DB mongo) {
-		this.mongo = mongo;
+	private final DB db;
+
+	public MongoDbExistsHealthCheck(DB db) {
+		this.db = db;
 	}
 
 	@Override
 	protected Result check() throws Exception {
-		mongo.getName();
+		db.getCollectionNames();
 		return Result.healthy();
 	}
 }

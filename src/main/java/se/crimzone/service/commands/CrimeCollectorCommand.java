@@ -1,8 +1,6 @@
 package se.crimzone.service.commands;
 
 import com.commercehub.dropwizard.mongo.ManagedMongoClient;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import io.dropwizard.cli.ConfiguredCommand;
@@ -37,7 +35,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.Thread.yield;
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Singleton
 public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfiguration> {
 	private static final Logger log = getLogger(CrimeCollectorCommand.class);
 
@@ -46,7 +43,6 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 
 	private JacksonDBCollection<Crime, String> collection;
 
-	@Inject
 	public CrimeCollectorCommand() {
 		super(COMMAND_NAME, COMMAND_DESCRIPTION);
 	}

@@ -1,8 +1,6 @@
 package se.crimzone.service.commands;
 
 import com.commercehub.dropwizard.mongo.ManagedMongoClient;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import io.dropwizard.cli.ConfiguredCommand;
@@ -16,14 +14,12 @@ import se.crimzone.service.CrimzoneConfiguration;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Singleton
 public class DeleteAllCrimesCommand extends ConfiguredCommand<CrimzoneConfiguration> {
 	private static final Logger log = getLogger(DeleteAllCrimesCommand.class);
 
 	private static final String COMMAND_NAME = "delete-all-crimes";
 	private static final String COMMAND_DESCRIPTION = "Deletes all crimes from the database. Must be confirmed with the --confirm flag";
 
-	@Inject
 	public DeleteAllCrimesCommand() {
 		super(COMMAND_NAME, COMMAND_DESCRIPTION);
 	}

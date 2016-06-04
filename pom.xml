@@ -83,46 +83,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.hubspot.dropwizard</groupId>
-			<artifactId>dropwizard-guice</artifactId>
-			<version>0.8.0</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>javax.inject</artifactId>
-					<groupId>javax.inject</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jsr305</artifactId>
-					<groupId>com.google.code.findbugs</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>annotations</artifactId>
-					<groupId>com.google.code.findbugs</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>aopalliance</artifactId>
-					<groupId>aopalliance</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-			<version>4.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.inject</groupId>
-					<artifactId>javax.inject</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>aopalliance</groupId>
-					<artifactId>aopalliance</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
 			<groupId>com.commercehub.dropwizard</groupId>
 			<artifactId>dropwizard-mongo</artifactId>
 			<version>3.0.0</version>
