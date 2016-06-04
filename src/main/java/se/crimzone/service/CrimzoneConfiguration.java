@@ -7,7 +7,7 @@ import io.dropwizard.Configuration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-class CrimzoneConfiguration extends Configuration {
+public class CrimzoneConfiguration extends Configuration {
 
 	@Valid
 	@NotNull

@@ -3,53 +3,30 @@ package se.crimzone.service.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 
-@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaInflectorServerCodegen", date = "2016-05-24T19:10:53.647Z")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-06-04T15:05:04.671Z")
 public class Crimes {
 
-	private List<Crime> individual = new ArrayList<Crime>();
-	private List<CrimeCluster> clusters = new ArrayList<CrimeCluster>();
-
+	private byte[] data = null;
 
 	/**
 	 **/
-	public Crimes individual(List<Crime> individual) {
-		this.individual = individual;
+	public Crimes data(byte[] data) {
+		this.data = data;
 		return this;
 	}
 
 
-	@ApiModelProperty(example = "null", required = true, value = "")
-	@JsonProperty("individual")
-	public List<Crime> getIndividual() {
-		return individual;
+	@ApiModelProperty(required = true, value = "")
+	@JsonProperty("data")
+	public byte[] getData() {
+		return data;
 	}
 
-	public void setIndividual(List<Crime> individual) {
-		this.individual = individual;
-	}
-
-
-	/**
-	 **/
-	public Crimes clusters(List<CrimeCluster> clusters) {
-		this.clusters = clusters;
-		return this;
-	}
-
-
-	@ApiModelProperty(example = "null", required = true, value = "")
-	@JsonProperty("clusters")
-	public List<CrimeCluster> getClusters() {
-		return clusters;
-	}
-
-	public void setClusters(List<CrimeCluster> clusters) {
-		this.clusters = clusters;
+	public void setData(byte[] data) {
+		this.data = data;
 	}
 
 
@@ -62,13 +39,12 @@ public class Crimes {
 			return false;
 		}
 		Crimes crimes = (Crimes) o;
-		return Objects.equals(individual, crimes.individual) &&
-				Objects.equals(clusters, crimes.clusters);
+		return Objects.equals(data, crimes.data);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(individual, clusters);
+		return Objects.hash(data);
 	}
 
 	@Override
@@ -76,8 +52,7 @@ public class Crimes {
 		StringBuilder sb = new StringBuilder();
 		sb.append("class Crimes {\n");
 
-		sb.append("    individual: ").append(toIndentedString(individual)).append("\n");
-		sb.append("    clusters: ").append(toIndentedString(clusters)).append("\n");
+		sb.append("    data: ").append(toIndentedString(data)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

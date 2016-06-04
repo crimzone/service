@@ -19,6 +19,8 @@ import io.swagger.util.Yaml;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.crimzone.service.commands.CrimeCollectorCommand;
+import se.crimzone.service.commands.DeleteAllCrimesCommand;
 import se.crimzone.service.healthchecks.MongoDbExistsHealthCheck;
 
 import javax.servlet.DispatcherType;
@@ -27,7 +29,9 @@ import java.util.EnumSet;
 
 public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(CrimzoneApplication.class);
+	private static final Logger log = LoggerFactory.getLogger(CrimzoneApplication.class);
+
+	public static final String CRIMES_COLLECTION_NAME = "crimes";
 
 	private static final String INFLECTOR_FILE_PATH = "inflector.yaml";
 
@@ -50,13 +54,14 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 				.build(Stage.DEVELOPMENT);
 
 		bootstrap.addBundle(guiceBundle);
+		bootstrap.addCommand(new CrimeCollectorCommand());
+		bootstrap.addCommand(new DeleteAllCrimesCommand());
 	}
 
 	@Override
 	public void run(CrimzoneConfiguration config, Environment env) throws Exception {
 		final FilterRegistration.Dynamic cors = env.servlets().addFilter("crossOriginRequsts", CrossOriginFilter.class);
 		cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
-
 		registerInflectorResources(env);
 		configureSwaggerDataTypes(env);
 		registerHealthchecks(env.healthChecks());
@@ -67,7 +72,7 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 		swaggerConfig.setControllerFactory(new GuiceControllerFactory(guiceBundle.getInjector()));
 		SwaggerInflector inflector = new SwaggerInflector(swaggerConfig);
 		env.jersey().getResourceConfig().registerResources(inflector.getResources());
-		LOG.debug("Registered inflector resources: {}", env.jersey().getResourceConfig().getResources());
+		log.debug("Registered inflector resources: {}", env.jersey().getResourceConfig().getResources());
 	}
 
 	private void configureSwaggerDataTypes(Environment env) throws Exception {
@@ -86,7 +91,7 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 
 	private void registerHealthchecks(HealthCheckRegistry healthChecks) {
 		healthChecks.register("mongoDbExists", guiceBundle.getInjector().getInstance(MongoDbExistsHealthCheck.class));
-		LOG.debug("Health checks: {}", healthChecks.getNames());
+		log.debug("Health checks: {}", healthChecks.getNames());
 	}
 
 	private static class GuiceControllerFactory implements ControllerFactory {

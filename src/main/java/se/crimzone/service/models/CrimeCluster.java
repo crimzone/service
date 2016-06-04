@@ -6,13 +6,12 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.Objects;
 
 
-@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaInflectorServerCodegen", date = "2016-05-24T19:10:53.647Z")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-06-02T21:08:03.940Z")
 public class CrimeCluster {
 
 	private Double latitude = null;
 	private Double longitude = null;
 	private Long count = null;
-
 
 	/**
 	 **/
@@ -22,7 +21,7 @@ public class CrimeCluster {
 	}
 
 
-	@ApiModelProperty(example = "null", required = true, value = "")
+	@ApiModelProperty(required = true, value = "")
 	@JsonProperty("latitude")
 	public Double getLatitude() {
 		return latitude;
@@ -32,7 +31,6 @@ public class CrimeCluster {
 		this.latitude = latitude;
 	}
 
-
 	/**
 	 **/
 	public CrimeCluster longitude(Double longitude) {
@@ -41,7 +39,7 @@ public class CrimeCluster {
 	}
 
 
-	@ApiModelProperty(example = "null", required = true, value = "")
+	@ApiModelProperty(required = true, value = "")
 	@JsonProperty("longitude")
 	public Double getLongitude() {
 		return longitude;
@@ -51,7 +49,6 @@ public class CrimeCluster {
 		this.longitude = longitude;
 	}
 
-
 	/**
 	 **/
 	public CrimeCluster count(Long count) {
@@ -60,7 +57,7 @@ public class CrimeCluster {
 	}
 
 
-	@ApiModelProperty(example = "null", required = true, value = "")
+	@ApiModelProperty(required = true, value = "")
 	@JsonProperty("count")
 	public Long getCount() {
 		return count;

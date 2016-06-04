@@ -6,12 +6,11 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.Objects;
 
 
-@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaInflectorServerCodegen", date = "2016-05-24T19:10:53.647Z")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-06-04T15:05:04.671Z")
 public class Error {
 
 	private Integer code = null;
 	private String message = null;
-
 
 	/**
 	 **/
@@ -21,7 +20,7 @@ public class Error {
 	}
 
 
-	@ApiModelProperty(example = "null", required = true, value = "")
+	@ApiModelProperty(required = true, value = "")
 	@JsonProperty("code")
 	public Integer getCode() {
 		return code;
@@ -31,7 +30,6 @@ public class Error {
 		this.code = code;
 	}
 
-
 	/**
 	 **/
 	public Error message(String message) {
@@ -40,7 +38,7 @@ public class Error {
 	}
 
 
-	@ApiModelProperty(example = "null", required = true, value = "")
+	@ApiModelProperty(required = true, value = "")
 	@JsonProperty("message")
 	public String getMessage() {
 		return message;
