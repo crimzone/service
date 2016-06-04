@@ -3,6 +3,7 @@ package se.crimzone.service.controllers;
 import io.swagger.inflector.models.RequestContext;
 import io.swagger.inflector.models.ResponseContext;
 
+@SuppressWarnings("unused")
 public class CrimesController {
 
 	public ResponseContext getAll(RequestContext request) {

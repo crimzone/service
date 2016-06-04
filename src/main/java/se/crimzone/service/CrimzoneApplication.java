@@ -14,16 +14,11 @@ import io.swagger.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.inflector.processors.XMLExampleProvider;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.util.Json;
-import io.swagger.util.Yaml;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
 import se.crimzone.service.commands.CrimeCollectorCommand;
 import se.crimzone.service.commands.DeleteAllCrimesCommand;
 import se.crimzone.service.healthchecks.MongoDbExistsHealthCheck;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
 import java.net.UnknownHostException;
-import java.util.EnumSet;
 
 public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 
@@ -49,7 +44,6 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 	@Override
 	public void run(CrimzoneConfiguration config, Environment env) throws Exception {
 		DB db = setupMongo(config, env);
-		setupCors(env);
 		registerInflectorResources(env);
 		configureSwaggerDataTypes(env);
 
@@ -61,11 +55,6 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 		ManagedMongoClient mongo = mongoFactory.build();
 		env.lifecycle().manage(mongo);
 		return mongo.getDB(mongoFactory.getDbName());
-	}
-
-	private void setupCors(Environment env) {
-		final FilterRegistration.Dynamic cors = env.servlets().addFilter("crossOriginRequsts", CrossOriginFilter.class);
-		cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 	}
 
 	private void registerInflectorResources(Environment env) throws Exception {
@@ -86,6 +75,5 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 		SimpleModule jacksonModule = new SimpleModule();
 		jacksonModule.addSerializer(new JsonNodeExampleSerializer());
 		Json.mapper().registerModule(jacksonModule);
-		Yaml.mapper().registerModule(jacksonModule);
 	}
 }
