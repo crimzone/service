@@ -14,8 +14,8 @@ import io.swagger.inflector.processors.JsonNodeExampleSerializer;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import io.swagger.util.Json;
 import org.mongojack.JacksonDBCollection;
+import se.crimzone.service.commands.ClearDatabaseCommand;
 import se.crimzone.service.commands.CrimeCollectorCommand;
-import se.crimzone.service.commands.DeleteAllCrimesCommand;
 import se.crimzone.service.controllers.CrimzoneControllerFactory;
 import se.crimzone.service.dao.CrimesDao;
 import se.crimzone.service.healthchecks.MongoOnlineHealthCheck;
@@ -39,7 +39,7 @@ public class CrimzoneApplication extends Application<CrimzoneConfiguration> {
 	@Override
 	public void initialize(Bootstrap<CrimzoneConfiguration> bootstrap) {
 		bootstrap.addCommand(new CrimeCollectorCommand());
-		bootstrap.addCommand(new DeleteAllCrimesCommand());
+		bootstrap.addCommand(new ClearDatabaseCommand());
 	}
 
 	@Override

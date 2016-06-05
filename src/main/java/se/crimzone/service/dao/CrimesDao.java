@@ -34,14 +34,18 @@ public class CrimesDao {
 		}
 	}
 
-	public void insert(Crime crime) {
-		// TODO make sure it doesn't already exist
+	public boolean insert(Crime crime) {
+		// TODO add mongodb validation for fields (especially time > 0)
+		if (exists(crime)) { // TODO replace with mongodb unique index on all fields
+			return false;
+		}
+
 		while (true) {
 			try (DBCursor<Crime> cursor = nextIdCursor()) {
 				int nextId = nextIdFromCursor(cursor);
 				crime.setId(nextId);
 				collection.insert(crime);
-				return;
+				return true;
 			} catch (MongoException e) {
 				if (e.getCode() == MONGO_DUPLICATE_KEY_ERROR_CODE) {
 					continue;
@@ -51,14 +55,26 @@ public class CrimesDao {
 		}
 	}
 
-	public void insert(Iterable<Crime> crimes) {
-		crimes.forEach(this::insert);
-	}
-
 	public int count() {
 		try (DBCursor<Crime> cursor = collection.find()) {
 			return cursor.count();
 		}
+	}
+
+	private boolean exists(Crime crime) {
+		// TODO use json serialization instead
+		BasicDBObject query = new BasicDBObject();
+		query.put("time", crime.getTime());
+		query.put("latitude", crime.getLatitude());
+		query.put("longitude", crime.getLongitude());
+		query.put("title", crime.getTitle());
+		query.put("description", crime.getDescription());
+		try (DBCursor<Crime> cursor = collection.find(query)) {
+			if (cursor.hasNext()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private DBCursor<Crime> nextIdCursor() {

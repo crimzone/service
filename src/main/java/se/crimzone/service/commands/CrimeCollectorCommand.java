@@ -50,10 +50,7 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 	@Override
 	protected void run(Bootstrap<CrimzoneConfiguration> bootstrap, Namespace arguments, CrimzoneConfiguration config) throws Exception {
 		ManagedMongoClient mongo = config.getMongo().build();
-		DB db = mongo.getDB(config.getMongo().getDbName());
-		DBCollection mongoCollection = db.getCollection(CrimesDao.CRIMES_COLLECTION_NAME);
-		JacksonDBCollection<Crime, Integer> collection = JacksonDBCollection.wrap(mongoCollection, Crime.class, Integer.class);
-		dao = new CrimesDao(collection);
+		setupDao(mongo, config.getMongo().getDbName(), CrimesDao.CRIMES_COLLECTION_NAME);
 
 		Integer start = arguments.getInt("start");
 		log.debug("start: {}", start);
@@ -61,13 +58,7 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 
 		Integer end = arguments.getInt("end");
 		log.debug("end: {}", end);
-		if (end != null) {
-			checkArgument(end >= 0, "end must be non-negative");
-		} else {
-			log.info("Finding last page");
-			end = findLastPage();
-			log.info("Last page is {}", end);
-		}
+		checkArgument(end >= 0, "end must be non-negative");
 
 		Integer parallelism = arguments.getInt("parallelism");
 		log.debug("parallelism: {}", parallelism);
@@ -84,6 +75,13 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 		log.debug("Closing mongo");
 	}
 
+	private void setupDao(ManagedMongoClient mongo, String dbName, String collectionName) {
+		DB db = mongo.getDB(dbName);
+		DBCollection mongoCollection = db.getCollection(collectionName);
+		JacksonDBCollection<Crime, Integer> collection = JacksonDBCollection.wrap(mongoCollection, Crime.class, Integer.class);
+		dao = new CrimesDao(collection);
+	}
+
 	@Override
 	public void configure(Subparser parser) {
 		super.configure(parser);
@@ -97,8 +95,8 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 				.metavar("PAGE")
 				.type(Integer.class)
 				.nargs("?")
-				.setDefault((Integer) null)
-				.help("The page index to end collecting from (default: looked up using an algorithm)");
+				.setDefault(Integer.MAX_VALUE)
+				.help("The page index to end collecting from");
 		parser.addArgument("-p", "--parallelism")
 				.metavar("THREADS")
 				.type(Integer.class)
@@ -107,14 +105,8 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 				.help("The number of pages that will be processed in parallel at a time");
 	}
 
-	private int findLastPage() throws InterruptedException {
-		throw new UnsupportedOperationException("Not yet implemented");
-		// TODO Implement findLastPage
-	}
-
 	private int collect(int startPage, int endPage, int parallelism) {
-		OrderedJobProcessor<List<Crime>> saver = new OrderedJobProcessor<>(startPage, endPage,
-				(dao::insert));
+		OrderedJobProcessor<List<Crime>> saver = new OrderedJobProcessor<>(startPage, endPage, (crimes) -> crimes.forEach(dao::insert));
 		log.debug("Creating {} worker threads", parallelism);
 		List<CrimeCollectorWorker> workers = IntStream.range(0, parallelism)
 				.mapToObj(i -> new CrimeCollectorWorker(String.valueOf(i), saver))
@@ -154,13 +146,17 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 				while (true) {
 					Optional<Integer> job = saver.getJob();
 					if (!job.isPresent()) {
-						log.debug("No more jobs");
+						log.debug("No more jobs to process. Exiting");
 						break;
 					}
 					int jobIndex = job.get();
 					log.debug("jobIndex: {}", jobIndex);
 					Document page = fetchPage(jobIndex);
 					List<Crime> crimes = parseCrimes(page);
+					if (crimes.isEmpty()) {
+						log.debug("No crimes found. Exiting");
+
+					}
 					saver.handInJob(jobIndex, crimes);
 				}
 			} catch (IOException | GaveUpTryingException | InterruptedException e) {
@@ -221,7 +217,7 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 	private class OrderedJobProcessor<T> {
 		private final Logger log = getLogger(OrderedJobProcessor.class);
 
-		private final Consumer<T> saver;
+		private final Consumer<T> processor;
 		private final int start;
 		private final int end;
 		private final Function<Integer, Integer> nextOperation;
@@ -229,11 +225,11 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 		private int upcomingJob;
 		private int count = 0;
 
-		OrderedJobProcessor(int start, int end, Consumer<T> saver) {
-			checkNotNull(saver);
+		OrderedJobProcessor(int start, int end, Consumer<T> processor) {
+			checkNotNull(processor);
 			checkArgument(start >= 0, "start must be non-negative");
 			checkArgument(end >= 0, "end must be non-negative");
-			this.saver = saver;
+			this.processor = processor;
 			this.start = start;
 			this.end = end;
 			this.nextOperation = start <= end ? (i -> ++i) : (i -> --i);
@@ -243,9 +239,10 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 
 		boolean handInJob(int i, T element) {
 			while (i != currentJob) {
+				// TODO replace yield with more robust solution (wait/interrupt)
 				yield();
 			}
-			saver.accept(element);
+			processor.accept(element);
 			count++;
 			currentJob = nextOperation.apply(currentJob);
 			return true;
@@ -257,7 +254,7 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 				return Optional.empty();
 			}
 			Optional<Integer> job = Optional.of(upcomingJob);
-			log.info("Handing out job {}", job);
+			log.debug("Handing out job {}", job);
 			upcomingJob = nextOperation.apply(this.upcomingJob);
 			return job;
 		}

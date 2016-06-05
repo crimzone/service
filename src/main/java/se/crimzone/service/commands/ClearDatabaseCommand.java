@@ -2,7 +2,6 @@ package se.crimzone.service.commands;
 
 import com.commercehub.dropwizard.mongo.ManagedMongoClient;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -10,37 +9,37 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import org.slf4j.Logger;
 import se.crimzone.service.CrimzoneConfiguration;
-import se.crimzone.service.dao.CrimesDao;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class DeleteAllCrimesCommand extends ConfiguredCommand<CrimzoneConfiguration> {
-	private static final Logger log = getLogger(DeleteAllCrimesCommand.class);
+public class ClearDatabaseCommand extends ConfiguredCommand<CrimzoneConfiguration> {
+	private static final Logger log = getLogger(ClearDatabaseCommand.class);
 
-	private static final String COMMAND_NAME = "delete-all-crimes";
-	private static final String COMMAND_DESCRIPTION = "Deletes all crimes from the database. Must be confirmed with the --confirm flag";
+	private static final String COMMAND_NAME = "clear-database";
+	private static final String COMMAND_DESCRIPTION = "Clears the whole database. Must be confirmed with the --confirm flag";
 
-	public DeleteAllCrimesCommand() {
+	public ClearDatabaseCommand() {
 		super(COMMAND_NAME, COMMAND_DESCRIPTION);
 	}
 
 	@Override
 	protected void run(Bootstrap<CrimzoneConfiguration> bootstrap, Namespace arguments, CrimzoneConfiguration config) throws Exception {
-		log.info("Connecting to mongo");
+		log.debug("Connecting to mongo");
+		String dbName = config.getMongo().getDbName();
+		log.info("Dropping database: '{}'", dbName);
 		ManagedMongoClient mongo = config.getMongo().build();
-		DB db = mongo.getDB(config.getMongo().getDbName());
-		DBCollection collection = db.getCollection(CrimesDao.CRIMES_COLLECTION_NAME);
-		log.info("Dropping collection '{}'", collection);
-		collection.drop();
-		log.info("Successfully dropped collection");
+		DB db = mongo.getDB(dbName);
+		db.dropDatabase();
+		log.info("Successfully dropped database");
 
-		log.info("Closing mongo");
+		log.debug("Closing mongo");
 		mongo.close();
 	}
 
 	@Override
 	public void configure(Subparser parser) {
 		super.configure(parser);
+		// TODO Fix double print of help text wheh -h is used
 		parser.addArgument("--confirm")
 				.required(true)
 				.action(Arguments.storeConst())
