@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import se.crimzone.service.CrimzoneConfiguration;
 import se.crimzone.service.dao.CrimesDao;
 import se.crimzone.service.models.Crime;
+import se.crimzone.service.models.GeoJsonPoint;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -23,6 +24,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -50,7 +53,8 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 	@Override
 	protected void run(Bootstrap<CrimzoneConfiguration> bootstrap, Namespace arguments, CrimzoneConfiguration config) throws Exception {
 		ManagedMongoClient mongo = config.getMongo().build();
-		setupDao(mongo, config.getMongo().getDbName(), CrimesDao.CRIMES_COLLECTION_NAME);
+		String dbName = config.getMongo().getDbName();
+		setupDao(mongo, dbName, CrimesDao.CRIMES_COLLECTION_NAME);
 
 		Integer start = arguments.getInt("start");
 		log.debug("start: {}", start);
@@ -192,22 +196,28 @@ public class CrimeCollectorCommand extends ConfiguredCommand<CrimzoneConfigurati
 
 		private Crime parseCrime(Element element) {
 			String title = element.select("header > h2 > a").first().text();
+
 			String description = element.select("div.description").first().text();
+
 			String dateString = element.select("header > div.meta > p.when > span").attr("title");
 			TemporalAccessor parsedTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ").parse(dateString);
 			Instant instant = Instant.from(parsedTime);
-			int time = Math.toIntExact((instant.toEpochMilli() / 1000));
-			String latitudeString = element.select("header > div.meta > p.where > meta[itemprop=\"latitude\"]").attr("content");
-			float latitude = Float.valueOf(latitudeString);
+
 			String longitudeString = element.select("header > div.meta > p.where > meta[itemprop=\"longitude\"]").attr("content");
-			float longitude = Float.valueOf(longitudeString);
+			Double longitude = new Double(longitudeString);
+
+			String latitudeString = element.select("header > div.meta > p.where > meta[itemprop=\"latitude\"]").attr("content");
+			Double latitude = new Double(latitudeString);
+
+			GeoJsonPoint location = new GeoJsonPoint();
+			location.setType("Point");
+			location.setCoordinates(Arrays.asList(longitude, latitude));
 
 			Crime crime = new Crime();
 			crime.setTitle(title);
 			crime.setDescription(description);
-			crime.setTime(time);
-			crime.setLatitude(latitude);
-			crime.setLongitude(longitude);
+			crime.setTime(Date.from(instant));
+			crime.setLocation(location);
 			return crime;
 		}
 

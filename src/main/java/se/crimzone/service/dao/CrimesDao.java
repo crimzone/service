@@ -7,8 +7,6 @@ import org.mongojack.JacksonDBCollection;
 import se.crimzone.service.models.Crime;
 
 import java.util.Optional;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -25,12 +23,6 @@ public class CrimesDao {
 	public Optional<Crime> find(int id) {
 		try (DBCursor<Crime> cursor = collection.find(new BasicDBObject("_id", id))) {
 			return cursor.hasNext() ? Optional.of(cursor.next()) : Optional.empty();
-		}
-	}
-
-	public Stream<Crime> streamAll() {
-		try (DBCursor<Crime> cursor = collection.find()) {
-			return StreamSupport.stream(cursor.spliterator(), false).onClose(cursor::close);
 		}
 	}
 
@@ -55,18 +47,11 @@ public class CrimesDao {
 		}
 	}
 
-	public int count() {
-		try (DBCursor<Crime> cursor = collection.find()) {
-			return cursor.count();
-		}
-	}
-
 	private boolean exists(Crime crime) {
 		// TODO use json serialization instead
 		BasicDBObject query = new BasicDBObject();
 		query.put("time", crime.getTime());
-		query.put("latitude", crime.getLatitude());
-		query.put("longitude", crime.getLongitude());
+		query.put("location", crime.getLocation());
 		query.put("title", crime.getTitle());
 		query.put("description", crime.getDescription());
 		try (DBCursor<Crime> cursor = collection.find(query)) {

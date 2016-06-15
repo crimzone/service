@@ -3,31 +3,51 @@ package se.crimzone.service.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
-@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-06-04T15:05:04.671Z")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-06-15T17:27:33.477Z")
 public class Crimes {
 
-	private byte[] data = null;
+	private List<Crime> individual = new ArrayList<Crime>();
+	private List<CrimeCluster> clusters = new ArrayList<CrimeCluster>();
 
 	/**
 	 **/
-	public Crimes data(byte[] data) {
-		this.data = data;
+	public Crimes individual(List<Crime> individual) {
+		this.individual = individual;
 		return this;
 	}
 
 
 	@ApiModelProperty(required = true, value = "")
-	@JsonProperty("data")
-	public byte[] getData() {
-		return data;
+	@JsonProperty("individual")
+	public List<Crime> getIndividual() {
+		return individual;
 	}
 
-	public void setData(byte[] data) {
-		this.data = data;
+	public void setIndividual(List<Crime> individual) {
+		this.individual = individual;
+	}
+
+	/**
+	 **/
+	public Crimes clusters(List<CrimeCluster> clusters) {
+		this.clusters = clusters;
+		return this;
+	}
+
+
+	@ApiModelProperty(required = true, value = "")
+	@JsonProperty("clusters")
+	public List<CrimeCluster> getClusters() {
+		return clusters;
+	}
+
+	public void setClusters(List<CrimeCluster> clusters) {
+		this.clusters = clusters;
 	}
 
 
@@ -40,12 +60,13 @@ public class Crimes {
 			return false;
 		}
 		Crimes crimes = (Crimes) o;
-		return Arrays.equals(data, crimes.data);
+		return Objects.equals(individual, crimes.individual) &&
+				Objects.equals(clusters, crimes.clusters);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(data);
+		return Objects.hash(individual, clusters);
 	}
 
 	@Override
@@ -53,6 +74,8 @@ public class Crimes {
 		StringBuilder sb = new StringBuilder();
 		sb.append("class Crimes {\n");
 
+		sb.append("    individual: ").append(toIndentedString(individual)).append("\n");
+		sb.append("    clusters: ").append(toIndentedString(clusters)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}
